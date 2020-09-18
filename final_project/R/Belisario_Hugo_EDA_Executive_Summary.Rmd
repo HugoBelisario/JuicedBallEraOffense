@@ -1,0 +1,41 @@
+---
+title: "EDA Executive Summary: Juiced Ball Era Offense"
+subtitle: "STAT 301-1 Data Science I"
+author: "Hugo Belisario"
+date: "December 13, 2019"
+output: html_document
+---
+
+# Data Import and Tidy Data
+
+```{r, message=FALSE}
+library(tidyverse)
+
+fangraphs <- read_csv("FanGraphs Leaderboard.csv")
+
+baseball_savant <- read_csv("savant_data.csv")
+fangraphs2 <- fangraphs %>%
+  select(-playerid, -`2B`, -`3B`, -(`FB%_1`:`CHv`))
+
+baseball_savant2 <- baseball_savant %>%
+  select(-pitches, -player_id, -total_pitches, -pitch_percent, -(ba:woba), -hits, -abs, -(spin_rate:pos9_int_start_distance))
+baseball_savant3 <- rename(baseball_savant2, Name = player_name)
+
+(juiced_ball_era <- fangraphs2 %>% 
+  inner_join(baseball_savant3, by = "Name"))
+```
+
+# Most Interesting Aspect of the EDA
+
+I am familiar with most of the variables that were used in the dataset. I had never done any analysis on Pitch Values which caught my eye when I was browsing FanGraphs prior to beginning this project. One of the initial questions I had about this particular group of players in this era was if hitters were having success against certain pitches. Pitch Values finds exactly that. There are two types of Pitch Values and since wFB/C corrects for the flaws included in the total runs by pitch by standardizing the values on a per 100 pitch basis. If you see a wFB/C of 1.50, you can generally say that hitter was successful against fastballs that year.
+
+```{r}
+ggplot(data = juiced_ball_era) +
+  geom_jitter(mapping = aes(x = `wFB/C`, y = `wRC+`)) +
+  geom_smooth(mapping = aes(x = `wFB/C`, y = `wRC+`), se = FALSE) +
+  xlab("wFB/C") +
+  ggtitle("wFB/C vs. wRC+") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+In the case of success of against fastballs, one can safely say that hitting better against fastballs can increase your wRC+ as the rate statistic and Pitch Values have a positive relationship. Not shown here, but for other pitches there are players with -2 to -2.5 on the scale while for wFB/C it starts at -1 which means if you cannot hit the fastball at 1 point below the average or above you are most likely not good enough to stay in the major leagues.
