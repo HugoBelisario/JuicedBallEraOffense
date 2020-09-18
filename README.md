@@ -1,2 +1,6 @@
-# JuicedBallEraOffense
-STAT 301-1 Data Science I Final Project
+# Juiced Ball Era Offense
+
+## Final Project Report
+
+Final Project Report: 
+
